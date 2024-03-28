@@ -128,14 +128,28 @@ def main():
 
     start_epoch = 0
     max_test_acc = -1
+    lr = args.lr
+
+    # Having lr * 10 for positions
+    position_params = []
+    other_params = []
+    for name, param in net.named_parameters():
+        if name.endswith(".P") and param.requires_grad:
+            position_params.append(param)
+        else:
+            other_params.append(param)
+
+    param_groups = [{"params": position_params, "lr": LR*10},
+                    {"params": other_params, "lr": LR},
+                    ]
 
     optimizer = None
     if args.opt == "sgd":
         optimizer = torch.optim.SGD(
-            net.parameters(), lr=args.lr, momentum=args.momentum
+            param_groups, lr=lr, momentum=args.momentum, weight_decay=10e-7
         )
     elif args.opt == "adam":
-        optimizer = torch.optim.Adam(net.parameters(), lr=args.lr)
+        optimizer = torch.optim.Adam(param_groups, lr=lr, weight_decay=10e-7)
     else:
         raise NotImplementedError(args.opt)
 
