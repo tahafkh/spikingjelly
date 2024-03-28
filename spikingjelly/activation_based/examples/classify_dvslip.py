@@ -183,13 +183,13 @@ def main():
             if scaler is not None:
                 with amp.autocast():
                     out_fr = net(frame).mean(0)
-                    loss = F.mse_loss(out_fr, label_onehot)
+                    loss = F.cross_entropy(out_fr, label_onehot)
                 scaler.scale(loss).backward()
                 scaler.step(optimizer)
                 scaler.update()
             else:
                 out_fr = net(frame).mean(0)
-                loss = F.mse_loss(out_fr, label_onehot)
+                loss = F.cross_entropy(out_fr, label_onehot)
                 loss.backward()
                 optimizer.step()
 
@@ -219,7 +219,7 @@ def main():
                 label = label.to(args.device)
                 label_onehot = F.one_hot(label, 100).float()
                 out_fr = net(frame).mean(0)
-                loss = F.mse_loss(out_fr, label_onehot)
+                loss = F.cross_entropy(out_fr, label_onehot)
                 test_samples += label.numel()
                 test_loss += loss.item() * label.numel()
                 test_acc += (out_fr.argmax(1) == label).float().sum().item()
