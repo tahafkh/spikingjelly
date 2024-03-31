@@ -569,7 +569,6 @@ class LowRateBranch(ResNet18):
         self.init_params()
 
     def forward(self, x):
-        x = x.sum(2, keepdim=True)
         b = x.shape[1]
 
         x = self.conv1(x)
